@@ -2,6 +2,7 @@ node_modules/
 dist/
 pedidos.json
 menu.json
+data.db
 .env
 .DS_Store
 ._*
