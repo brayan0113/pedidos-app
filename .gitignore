@@ -1,0 +1,7 @@
+node_modules/
+dist/
+pedidos.json
+menu.json
+.env
+.DS_Store
+._*
