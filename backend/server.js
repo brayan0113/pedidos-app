@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const db = require('./db');
 
@@ -145,7 +146,14 @@ app.post('/webhook/verificar-disponibilidad', (req, res) => {
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-app.listen(PORT, () => {
+// ─── FRONTEND (producción) ────────────────────────────────────────────────────
+const DIST = path.join(__dirname, '../frontend/dist');
+if (require('fs').existsSync(DIST)) {
+  app.use(express.static(DIST));
+  app.get('*', (req, res) => res.sendFile(path.join(DIST, 'index.html')));
+}
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Servidor en http://localhost:${PORT}`);
   console.log(`📲 Webhook pedido:          POST http://localhost:${PORT}/webhook/pedido`);
   console.log(`📋 Webhook menú disponible: GET  http://localhost:${PORT}/webhook/menu`);

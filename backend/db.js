@@ -1,7 +1,8 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const sqlite = new Database(path.join(__dirname, 'data.db'));
+const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, 'data.db');
+const sqlite = new Database(DB_PATH);
 
 // ─── ESQUEMA ──────────────────────────────────────────────────────────────────
 sqlite.exec(`
