@@ -5,6 +5,7 @@ import Stats from './components/Stats';
 import OrderCard from './components/OrderCard';
 import OrderDetail from './components/OrderDetail';
 import MenuSection from './components/MenuSection';
+import NuevoPedido from './components/NuevoPedido';
 
 const FILTROS = [
   { value: 'todos',      label: 'Todos' },
@@ -16,7 +17,7 @@ const FILTROS = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState('pedidos'); // 'pedidos' | 'menu'
+  const [tab, setTab] = useState('pedidos'); // 'pedidos' | 'nuevo' | 'menu'
   const [pedidos, setPedidos] = useState([]);
   const [stats, setStats] = useState(null);
   const [filtro, setFiltro] = useState('todos');
@@ -89,6 +90,19 @@ export default function App() {
               )}
             </button>
             <button
+              onClick={() => setTab('nuevo')}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                tab === 'nuevo'
+                  ? 'border-green-500 text-green-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
+              </svg>
+              Nuevo pedido
+            </button>
+            <button
               onClick={() => setTab('menu')}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 tab === 'menu'
@@ -108,6 +122,8 @@ export default function App() {
       <main className="max-w-6xl mx-auto px-4 py-5 space-y-5">
         {tab === 'menu' ? (
           <MenuSection />
+        ) : tab === 'nuevo' ? (
+          <NuevoPedido onPedidoCreado={() => { setTab('pedidos'); cargar(); }} />
         ) : (
           <>
             {/* Stats */}

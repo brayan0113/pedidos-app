@@ -28,3 +28,13 @@ export async function eliminarPedido(id) {
   if (!res.ok) throw new Error('Error al eliminar pedido');
   return res.json();
 }
+
+export async function crearPedido(pedido) {
+  const res = await fetch('/webhook/pedido', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...pedido, fuente: 'presencial' })
+  });
+  if (!res.ok) throw new Error('Error al crear pedido');
+  return res.json();
+}
