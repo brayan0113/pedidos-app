@@ -32,7 +32,122 @@ function computeStats(lista) {
   };
 }
 
-// Íconos reutilizables
+// Convierte ISO a fecha local 'YYYY-MM-DD'
+function fechaLocal(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Fecha local de hoy 'YYYY-MM-DD'
+function hoyLocal() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const fmtCOP = (n) =>
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
+
+function fmtFechaEncabezado(yyyy_mm_dd) {
+  const [y, m, d] = yyyy_mm_dd.split('-').map(Number);
+  const fecha = new Date(y, m - 1, d);
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
+  fecha.setHours(0, 0, 0, 0);
+  if (fecha.getTime() === hoy.getTime()) return 'Hoy';
+  if (fecha.getTime() === ayer.getTime()) return 'Ayer';
+  return fecha.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ─── Historial agrupado por día ───────────────────────────────────────────────
+function HistorialPorDia({ pedidos, onSelectPedido }) {
+  const [abiertos, setAbiertos] = useState({});
+
+  const grupos = useMemo(() => {
+    const mapa = {};
+    for (const p of pedidos) {
+      const dia = fechaLocal(p.fecha);
+      if (!mapa[dia]) mapa[dia] = [];
+      mapa[dia].push(p);
+    }
+    // ordenar días desc
+    return Object.entries(mapa).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [pedidos]);
+
+  // Abrir el primer día por defecto
+  useEffect(() => {
+    if (grupos.length > 0) {
+      setAbiertos({ [grupos[0][0]]: true });
+    }
+  }, [grupos]);
+
+  const toggle = (dia) => setAbiertos(prev => ({ ...prev, [dia]: !prev[dia] }));
+
+  if (grupos.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-5xl mb-3">📭</p>
+        <p className="text-gray-500 font-medium">No hay pedidos en el historial</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {grupos.map(([dia, pedidosDia]) => {
+        const abierto = !!abiertos[dia];
+        const totalDia = pedidosDia
+          .filter(p => p.estado !== 'cancelado')
+          .reduce((s, p) => s + (p.total || 0), 0);
+        const titulo = fmtFechaEncabezado(dia);
+
+        return (
+          <div key={dia} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            {/* Encabezado del día — clickeable */}
+            <button
+              onClick={() => toggle(dia)}
+              className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${abierto ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900 capitalize">{titulo}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {pedidosDia.length} pedido{pedidosDia.length !== 1 ? 's' : ''}
+                    {pedidosDia.filter(p => p.estado === 'cancelado').length > 0 && (
+                      <span className="text-red-400 ml-1">
+                        · {pedidosDia.filter(p => p.estado === 'cancelado').length} cancelado{pedidosDia.filter(p => p.estado === 'cancelado').length !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="font-bold text-green-600 text-sm">{fmtCOP(totalDia)}</span>
+                <svg
+                  className={`w-4 h-4 text-gray-400 transition-transform ${abierto ? 'rotate-180' : ''}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </button>
+
+            {/* Pedidos del día */}
+            {abierto && (
+              <div className="border-t border-gray-100 p-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {pedidosDia.map(pedido => (
+                  <OrderCard key={pedido.id} pedido={pedido} onClick={onSelectPedido} />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Íconos ───────────────────────────────────────────────────────────────────
 const IconPedidos = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -54,6 +169,7 @@ const IconMenu = () => (
   </svg>
 );
 
+// ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const { user } = useAuth();
   if (!user) return <Login />;
@@ -86,31 +202,33 @@ function AppInner() {
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
-
   useEffect(() => {
     const interval = setInterval(cargar, 15000);
     return () => clearInterval(interval);
   }, [cargar]);
 
-  // Limpiar búsqueda y filtro al cambiar de tab
   const cambiarTab = (nuevoTab) => {
     setTab(nuevoTab);
     setBusqueda('');
     setFiltro('todos');
   };
 
-  const HOY = new Date().toISOString().slice(0, 10);
+  // Pedidos de hoy usando hora LOCAL (no UTC)
+  const pedidosHoy = useMemo(() => {
+    const hoy = hoyLocal();
+    return pedidos.filter(p => fechaLocal(p.fecha) === hoy);
+  }, [pedidos]);
 
-  // Pedidos de hoy
-  const pedidosHoy = useMemo(
-    () => pedidos.filter(p => p.fecha.startsWith(HOY)),
-    [pedidos, HOY]
-  );
+  // Para historial: todos los pedidos EXCEPTO los de hoy
+  const pedidosHistorial = useMemo(() => {
+    const hoy = hoyLocal();
+    return pedidos.filter(p => fechaLocal(p.fecha) !== hoy);
+  }, [pedidos]);
 
-  // Pedidos según tab activo
-  const pedidosBase = tab === 'historial' ? pedidos : pedidosHoy;
+  // Lista base según tab
+  const pedidosBase = tab === 'historial' ? pedidosHistorial : pedidosHoy;
 
-  // Aplicar filtro de estado y búsqueda
+  // Filtros aplicados (solo para tab 'hoy')
   const pedidosFiltrados = useMemo(() => {
     let lista = filtro !== 'todos' ? pedidosBase.filter(p => p.estado === filtro) : pedidosBase;
     if (busqueda.trim()) {
@@ -125,18 +243,26 @@ function AppInner() {
     return lista;
   }, [pedidosBase, filtro, busqueda]);
 
-  // Stats para el tab activo
-  const stats = useMemo(() => computeStats(pedidosBase), [pedidosBase]);
+  // Pedidos historial filtrados por búsqueda
+  const pedidosHistorialFiltrados = useMemo(() => {
+    if (!busqueda.trim()) return pedidosHistorial;
+    const q = busqueda.toLowerCase();
+    return pedidosHistorial.filter(p =>
+      p.cliente.toLowerCase().includes(q) ||
+      p.telefono?.includes(busqueda) ||
+      p.productos?.some(pr => pr.nombre?.toLowerCase().includes(q)) ||
+      p.atendido_por?.toLowerCase().includes(q)
+    );
+  }, [pedidosHistorial, busqueda]);
 
-  // Tabs según rol
+  const stats = useMemo(() => computeStats(pedidosHoy), [pedidosHoy]);
+
   const tabs = [
     { key: 'hoy',      label: 'Hoy',      icon: <IconPedidos /> },
     ...(isAdmin ? [{ key: 'historial', label: 'Historial', icon: <IconHistorial /> }] : []),
     { key: 'nuevo',    label: 'Nuevo pedido', icon: <IconNuevo /> },
     ...(isAdmin ? [{ key: 'menu',      label: 'Menú',      icon: <IconMenu /> }] : []),
   ];
-
-  const mostrarLista = tab === 'hoy' || tab === 'historial';
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
@@ -170,7 +296,7 @@ function AppInner() {
       </div>
 
       {/* Navegación inferior móvil */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 flex safe-pb">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 flex">
         {tabs.map(t => (
           <button
             key={t.key}
@@ -192,29 +318,22 @@ function AppInner() {
         ))}
       </nav>
 
-      {/* Contenido principal */}
+      {/* Contenido */}
       <main className="max-w-6xl mx-auto px-4 py-4 space-y-4">
         {tab === 'menu' && isAdmin && <MenuSection />}
         {tab === 'nuevo' && <NuevoPedido onPedidoCreado={() => { cambiarTab('hoy'); cargar(); }} />}
 
-        {mostrarLista && (
+        {/* ── HOY ── */}
+        {tab === 'hoy' && (
           <>
-            {/* Título del tab */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-bold text-gray-900 text-lg">
-                  {tab === 'historial' ? 'Historial de pedidos' : 'Pedidos de hoy'}
-                </h2>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {tab === 'historial'
-                    ? `${pedidos.length} pedido${pedidos.length !== 1 ? 's' : ''} en total`
-                    : new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
-                </p>
-              </div>
+            <div>
+              <h2 className="font-bold text-gray-900 text-lg">Pedidos de hoy</h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </p>
             </div>
 
-            {/* Stats */}
-            <Stats stats={stats} esHistorial={tab === 'historial'} />
+            <Stats stats={stats} />
 
             {/* Búsqueda */}
             <div className="relative">
@@ -237,7 +356,7 @@ function AppInner() {
               )}
             </div>
 
-            {/* Filtros de estado */}
+            {/* Filtros */}
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
               {FILTROS.map(f => (
                 <button
@@ -260,7 +379,6 @@ function AppInner() {
               ))}
             </div>
 
-            {/* Error */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,39 +388,67 @@ function AppInner() {
               </div>
             )}
 
-            {/* Lista */}
             {!error && (
               <>
                 <p className="text-sm text-gray-500">
                   {pedidosFiltrados.length === 0 ? 'Sin pedidos' :
                     `${pedidosFiltrados.length} pedido${pedidosFiltrados.length !== 1 ? 's' : ''}`}
                 </p>
-
                 {pedidosFiltrados.length === 0 && !loading ? (
                   <div className="text-center py-16">
                     <p className="text-5xl mb-3">📭</p>
-                    <p className="text-gray-500 font-medium">No hay pedidos</p>
+                    <p className="text-gray-500 font-medium">No hay pedidos hoy</p>
                     <p className="text-sm text-gray-400 mt-1">
-                      {busqueda
-                        ? 'Intenta otra búsqueda'
-                        : tab === 'hoy'
-                          ? 'Aún no hay pedidos hoy'
-                          : 'Los pedidos de WhatsApp aparecerán aquí'}
+                      {busqueda ? 'Intenta otra búsqueda' : 'Los pedidos aparecerán aquí'}
                     </p>
                   </div>
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {pedidosFiltrados.map(pedido => (
-                      <OrderCard
-                        key={pedido.id}
-                        pedido={pedido}
-                        onClick={setSelectedPedido}
-                      />
+                      <OrderCard key={pedido.id} pedido={pedido} onClick={setSelectedPedido} />
                     ))}
                   </div>
                 )}
               </>
             )}
+          </>
+        )}
+
+        {/* ── HISTORIAL ── */}
+        {tab === 'historial' && isAdmin && (
+          <>
+            <div>
+              <h2 className="font-bold text-gray-900 text-lg">Historial de pedidos</h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {pedidosHistorial.length} pedido{pedidosHistorial.length !== 1 ? 's' : ''} en días anteriores
+              </p>
+            </div>
+
+            {/* Búsqueda historial */}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar en el historial..."
+                value={busqueda}
+                onChange={e => setBusqueda(e.target.value)}
+                className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+              {busqueda && (
+                <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            <HistorialPorDia
+              pedidos={pedidosHistorialFiltrados}
+              onSelectPedido={setSelectedPedido}
+            />
           </>
         )}
       </main>
