@@ -17,7 +17,7 @@ function fmtFecha(iso) {
   const hora = d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
   if (d.toDateString() === hoy.toDateString()) return `Hoy ${hora}`;
   if (d.toDateString() === ayer.toDateString()) return `Ayer ${hora}`;
-  return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' }) + ' ' + hora;
+  return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + hora;
 }
 
 export default function OrderCard({ pedido, onClick }) {
@@ -27,17 +27,17 @@ export default function OrderCard({ pedido, onClick }) {
   return (
     <div
       onClick={() => onClick(pedido)}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-green-200 transition-all active:scale-95"
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-green-200 transition-all active:scale-[0.98]"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0">
           <p className="font-semibold text-gray-900 truncate">{pedido.cliente}</p>
           {pedido.telefono && (
             <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
               </svg>
-              {pedido.telefono}
+              <span className="truncate">{pedido.telefono}</span>
             </p>
           )}
         </div>
@@ -61,10 +61,15 @@ export default function OrderCard({ pedido, onClick }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-        <span className="text-xs text-gray-400">{fmtFecha(pedido.fecha)}</span>
+      <div className="flex items-center justify-between pt-2 border-t border-gray-50 gap-2">
+        <div className="min-w-0">
+          <span className="text-xs text-gray-400 block">{fmtFecha(pedido.fecha)}</span>
+          {pedido.atendido_por && (
+            <span className="text-xs text-indigo-500 truncate block">por {pedido.atendido_por}</span>
+          )}
+        </div>
         {pedido.total > 0 && (
-          <span className="font-bold text-green-600 text-sm">{fmtCOP(pedido.total)}</span>
+          <span className="font-bold text-green-600 text-sm shrink-0">{fmtCOP(pedido.total)}</span>
         )}
       </div>
     </div>

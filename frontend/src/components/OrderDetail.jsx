@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { actualizarEstado, eliminarPedido } from '../api/pedidos';
+import { useAuth } from '../context/AuthContext';
 
 const ESTADOS = [
   { value: 'nuevo',      label: 'Nuevo',      color: 'bg-blue-500' },
@@ -13,6 +14,7 @@ const fmtCOP = (n) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
 
 export default function OrderDetail({ pedido, onClose, onUpdate }) {
+  const { isAdmin } = useAuth();
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -47,13 +49,13 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
   });
 
   return (
-    <div className="fixed inset-0 z-20 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl">
-        {/* Handle */}
+      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl">
+        {/* Handle móvil */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 bg-gray-200 rounded-full" />
         </div>
@@ -70,7 +72,7 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
 
         {/* Content */}
         <div className="overflow-y-auto flex-1 px-5 py-4 space-y-5">
-          {/* Client info */}
+          {/* Info cliente */}
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
               <span className="text-lg font-bold text-green-600">{pedido.cliente[0]?.toUpperCase()}</span>
@@ -88,10 +90,31 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
                 </a>
               )}
               <p className="text-xs text-gray-400 mt-1">{fecha}</p>
+              {pedido.fuente && (
+                <span className={`inline-block text-xs px-2 py-0.5 rounded-full mt-1 font-medium ${
+                  pedido.fuente === 'presencial'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'bg-green-50 text-green-600'
+                }`}>
+                  {pedido.fuente === 'presencial' ? 'Presencial' : 'WhatsApp'}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Products */}
+          {/* Atendido por */}
+          {pedido.atendido_por && (
+            <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2.5">
+              <svg className="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <p className="text-sm text-indigo-700">
+                <span className="font-medium">Atendido por:</span> {pedido.atendido_por}
+              </p>
+            </div>
+          )}
+
+          {/* Productos */}
           {pedido.productos?.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Productos</p>
@@ -131,7 +154,7 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
             </div>
           )}
 
-          {/* Estado actual */}
+          {/* Cambiar estado */}
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Cambiar estado</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -154,20 +177,22 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100">
-          <button
-            onClick={handleDelete}
-            disabled={saving}
-            className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors
-              ${confirmDelete
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-              }`}
-          >
-            {confirmDelete ? '¿Confirmar eliminación?' : 'Eliminar pedido'}
-          </button>
-        </div>
+        {/* Footer — solo admin puede eliminar */}
+        {isAdmin && (
+          <div className="px-5 py-3 border-t border-gray-100">
+            <button
+              onClick={handleDelete}
+              disabled={saving}
+              className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors
+                ${confirmDelete
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                }`}
+            >
+              {confirmDelete ? '¿Confirmar eliminación?' : 'Eliminar pedido'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

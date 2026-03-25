@@ -2,17 +2,64 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'pedidos-app-secret-key-2024';
 
 app.use(cors());
 app.use(express.json());
 
-// ─── WEBHOOK DESDE N8N ────────────────────────────────────────────────────────
+// ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
+const requireAuth = (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No autenticado' });
+  }
+  try {
+    req.user = jwt.verify(auth.slice(7), JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+};
+
+const requireAdmin = (req, res, next) => {
+  if (req.user?.rol !== 'admin') {
+    return res.status(403).json({ error: 'Se requieren permisos de administrador' });
+  }
+  next();
+};
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
+  }
+
+  const user = db.getUserByUsername(username);
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+
+  const payload = { id: user.id, nombre: user.nombre, username: user.username, rol: user.rol };
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+
+  console.log(`[${new Date().toLocaleString()}] 🔑 Login: ${user.nombre} (${user.rol})`);
+  res.json({ token, user: payload });
+});
+
+app.get('/api/auth/me', requireAuth, (req, res) => {
+  res.json({ user: req.user });
+});
+
+// ─── WEBHOOK DESDE N8N (público, sin auth) ────────────────────────────────────
 app.post('/webhook/pedido', (req, res) => {
-  const { cliente, telefono, productos, total, direccion, notas, fuente } = req.body;
+  const { cliente, telefono, productos, total, direccion, notas, fuente, atendido_por } = req.body;
 
   if (!cliente) {
     return res.status(400).json({ error: 'El campo "cliente" es requerido' });
@@ -28,28 +75,27 @@ app.post('/webhook/pedido', (req, res) => {
     notas: notas || '',
     estado: 'nuevo',
     fecha: new Date().toISOString(),
-    fuente: fuente || 'whatsapp'
+    fuente: fuente || 'whatsapp',
+    atendido_por: atendido_por || ''
   };
 
   db.insertPedido(pedido);
-  console.log(`[${new Date().toLocaleString()}] ✅ Nuevo pedido: ${cliente}`);
+  console.log(`[${new Date().toLocaleString()}] ✅ Nuevo pedido: ${cliente}${atendido_por ? ` (por ${atendido_por})` : ''}`);
   res.json({ success: true, id: pedido.id });
 });
 
-// ─── LISTAR PEDIDOS ───────────────────────────────────────────────────────────
-app.get('/api/pedidos', (req, res) => {
+// ─── PEDIDOS (requiere auth) ───────────────────────────────────────────────────
+app.get('/api/pedidos', requireAuth, (req, res) => {
   res.json(db.getPedidos(req.query.estado));
 });
 
-// ─── OBTENER UN PEDIDO ────────────────────────────────────────────────────────
-app.get('/api/pedidos/:id', (req, res) => {
+app.get('/api/pedidos/:id', requireAuth, (req, res) => {
   const pedido = db.getPedido(req.params.id);
   if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json(pedido);
 });
 
-// ─── CAMBIAR ESTADO ───────────────────────────────────────────────────────────
-app.patch('/api/pedidos/:id/estado', (req, res) => {
+app.patch('/api/pedidos/:id/estado', requireAuth, (req, res) => {
   const { estado } = req.body;
   const validos = ['nuevo', 'en_proceso', 'listo', 'entregado', 'cancelado'];
 
@@ -62,24 +108,23 @@ app.patch('/api/pedidos/:id/estado', (req, res) => {
   res.json({ success: true });
 });
 
-// ─── ELIMINAR PEDIDO ──────────────────────────────────────────────────────────
-app.delete('/api/pedidos/:id', (req, res) => {
+// Solo admin puede eliminar pedidos
+app.delete('/api/pedidos/:id', requireAuth, requireAdmin, (req, res) => {
   const ok = db.deletePedido(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json({ success: true });
 });
 
-// ─── ESTADÍSTICAS ─────────────────────────────────────────────────────────────
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', requireAuth, (req, res) => {
   res.json(db.getStats());
 });
 
-// ─── MENÚ (Admin) ─────────────────────────────────────────────────────────────
-app.get('/api/menu', (req, res) => {
+// ─── MENÚ (solo admin puede modificar) ────────────────────────────────────────
+app.get('/api/menu', requireAuth, (req, res) => {
   res.json(db.getItems());
 });
 
-app.post('/api/menu', (req, res) => {
+app.post('/api/menu', requireAuth, requireAdmin, (req, res) => {
   const { nombre, descripcion, categoria, precio } = req.body;
   if (!nombre) return res.status(400).json({ error: 'El campo "nombre" es requerido' });
 
@@ -96,7 +141,7 @@ app.post('/api/menu', (req, res) => {
   res.json({ success: true, id: item.id });
 });
 
-app.patch('/api/menu/:id', (req, res) => {
+app.patch('/api/menu/:id', requireAuth, requireAdmin, (req, res) => {
   const campos = {};
   const permitidos = ['nombre', 'descripcion', 'categoria', 'precio', 'disponible'];
   for (const k of permitidos) {
@@ -109,15 +154,13 @@ app.patch('/api/menu/:id', (req, res) => {
   res.json({ success: true });
 });
 
-app.delete('/api/menu/:id', (req, res) => {
+app.delete('/api/menu/:id', requireAuth, requireAdmin, (req, res) => {
   const ok = db.deleteItem(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Ítem no encontrado' });
   res.json({ success: true });
 });
 
-// ─── WEBHOOKS MENÚ (para n8n) ─────────────────────────────────────────────────
-
-// Consultar menú completo disponible (el agente lo usa para saber qué hay)
+// ─── WEBHOOKS MENÚ (para n8n, públicos) ───────────────────────────────────────
 app.get('/webhook/menu', (req, res) => {
   const items = db.getItemsDisponibles();
   res.json({
@@ -131,8 +174,6 @@ app.get('/webhook/menu', (req, res) => {
   });
 });
 
-// Verificar si ítems pedidos por el cliente están disponibles
-// Body: { "items": ["Arepa de Choclo", "Arepa Boyacense"] }
 app.post('/webhook/verificar-disponibilidad', (req, res) => {
   const { items } = req.body;
   if (!Array.isArray(items) || items.length === 0) {
@@ -157,5 +198,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Servidor en http://localhost:${PORT}`);
   console.log(`📲 Webhook pedido:          POST http://localhost:${PORT}/webhook/pedido`);
   console.log(`📋 Webhook menú disponible: GET  http://localhost:${PORT}/webhook/menu`);
-  console.log(`✅ Webhook verificar items: POST http://localhost:${PORT}/webhook/verificar-disponibilidad\n`);
+  console.log(`✅ Webhook verificar items: POST http://localhost:${PORT}/webhook/verificar-disponibilidad`);
+  console.log(`🔑 Login:                   POST http://localhost:${PORT}/api/auth/login\n`);
 });

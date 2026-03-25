@@ -1,33 +1,31 @@
-const BASE = '/api/menu';
+import { apiFetch } from './client';
 
 export async function getMenu() {
-  const res = await fetch(BASE);
+  const res = await apiFetch('/api/menu');
   if (!res.ok) throw new Error('Error al obtener el menú');
   return res.json();
 }
 
 export async function crearItem(item) {
-  const res = await fetch(BASE, {
+  const res = await apiFetch('/api/menu', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item)
+    body: JSON.stringify(item),
   });
   if (!res.ok) throw new Error('Error al crear ítem');
   return res.json();
 }
 
 export async function actualizarItem(id, campos) {
-  const res = await fetch(`${BASE}/${id}`, {
+  const res = await apiFetch(`/api/menu/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(campos)
+    body: JSON.stringify(campos),
   });
   if (!res.ok) throw new Error('Error al actualizar ítem');
   return res.json();
 }
 
 export async function eliminarItem(id) {
-  const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
+  const res = await apiFetch(`/api/menu/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Error al eliminar ítem');
   return res.json();
 }

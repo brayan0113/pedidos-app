@@ -1,4 +1,5 @@
 const Database = require('better-sqlite3');
+const bcrypt = require('bcryptjs');
 const path = require('path');
 
 const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, 'data.db');
@@ -7,16 +8,17 @@ const sqlite = new Database(DB_PATH);
 // ─── ESQUEMA ──────────────────────────────────────────────────────────────────
 sqlite.exec(`
   CREATE TABLE IF NOT EXISTS pedidos (
-    id        TEXT PRIMARY KEY,
-    cliente   TEXT NOT NULL,
-    telefono  TEXT DEFAULT '',
-    productos TEXT DEFAULT '[]',
-    total     REAL DEFAULT 0,
-    direccion TEXT DEFAULT '',
-    notas     TEXT DEFAULT '',
-    estado    TEXT DEFAULT 'nuevo',
-    fecha     TEXT NOT NULL,
-    fuente    TEXT DEFAULT 'whatsapp'
+    id          TEXT PRIMARY KEY,
+    cliente     TEXT NOT NULL,
+    telefono    TEXT DEFAULT '',
+    productos   TEXT DEFAULT '[]',
+    total       REAL DEFAULT 0,
+    direccion   TEXT DEFAULT '',
+    notas       TEXT DEFAULT '',
+    estado      TEXT DEFAULT 'nuevo',
+    fecha       TEXT NOT NULL,
+    fuente      TEXT DEFAULT 'whatsapp',
+    atendido_por TEXT DEFAULT ''
   );
 
   CREATE TABLE IF NOT EXISTS menu_items (
@@ -27,7 +29,32 @@ sqlite.exec(`
     precio      REAL DEFAULT 0,
     disponible  INTEGER DEFAULT 1
   );
+
+  CREATE TABLE IF NOT EXISTS usuarios (
+    id       TEXT PRIMARY KEY,
+    nombre   TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    rol      TEXT NOT NULL DEFAULT 'mesero'
+  );
 `);
+
+// ─── MIGRACIÓN: columna atendido_por (por si la tabla ya existía) ─────────────
+try {
+  sqlite.exec(`ALTER TABLE pedidos ADD COLUMN atendido_por TEXT DEFAULT ''`);
+} catch (_) { /* columna ya existe */ }
+
+// ─── SEED USUARIOS INICIALES ──────────────────────────────────────────────────
+const userCount = sqlite.prepare('SELECT COUNT(*) as c FROM usuarios').get().c;
+if (userCount === 0) {
+  sqlite.prepare('INSERT INTO usuarios VALUES (?, ?, ?, ?, ?)').run(
+    'usr-admin-default', 'Administrador', 'admin', bcrypt.hashSync('admin123', 10), 'admin'
+  );
+  sqlite.prepare('INSERT INTO usuarios VALUES (?, ?, ?, ?, ?)').run(
+    'usr-mesero-default', 'Mesero', 'mesero', bcrypt.hashSync('mesero123', 10), 'mesero'
+  );
+  console.log('✅ Usuarios creados: admin/admin123  |  mesero/mesero123');
+}
 
 // helpers
 const parsePedido = (row) => row ? { ...row, productos: JSON.parse(row.productos || '[]') } : null;
@@ -45,9 +72,13 @@ const getPedido = (id) => parsePedido(sqlite.prepare('SELECT * FROM pedidos WHER
 
 const insertPedido = (pedido) => {
   sqlite.prepare(`
-    INSERT INTO pedidos (id, cliente, telefono, productos, total, direccion, notas, estado, fecha, fuente)
-    VALUES (@id, @cliente, @telefono, @productos, @total, @direccion, @notas, @estado, @fecha, @fuente)
-  `).run({ ...pedido, productos: JSON.stringify(pedido.productos || []) });
+    INSERT INTO pedidos (id, cliente, telefono, productos, total, direccion, notas, estado, fecha, fuente, atendido_por)
+    VALUES (@id, @cliente, @telefono, @productos, @total, @direccion, @notas, @estado, @fecha, @fuente, @atendido_por)
+  `).run({
+    ...pedido,
+    productos: JSON.stringify(pedido.productos || []),
+    atendido_por: pedido.atendido_por || ''
+  });
 };
 
 const updateEstado = (id, estado) => {
@@ -135,7 +166,15 @@ const verificarDisponibilidad = (nombres) => {
   return { disponibles, no_disponibles, todos_disponibles: no_disponibles.length === 0 };
 };
 
+// ─── USUARIOS ─────────────────────────────────────────────────────────────────
+const getUserByUsername = (username) =>
+  sqlite.prepare('SELECT * FROM usuarios WHERE username = ?').get(username);
+
+const getUsuarios = () =>
+  sqlite.prepare('SELECT id, nombre, username, rol FROM usuarios ORDER BY rol, nombre').all();
+
 module.exports = {
   getPedidos, getPedido, insertPedido, updateEstado, deletePedido, getStats,
-  getItems, getItemsDisponibles, getItem, insertItem, updateItem, deleteItem, verificarDisponibilidad
+  getItems, getItemsDisponibles, getItem, insertItem, updateItem, deleteItem, verificarDisponibilidad,
+  getUserByUsername, getUsuarios
 };
