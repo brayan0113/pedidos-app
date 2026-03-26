@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getPedidos } from './api/pedidos';
 import { useAuth } from './context/AuthContext';
 import Header from './components/Header';
@@ -8,6 +8,7 @@ import OrderDetail from './components/OrderDetail';
 import MenuSection from './components/MenuSection';
 import NuevoPedido from './components/NuevoPedido';
 import Login from './components/Login';
+import { playNotificationSound, requestNotificationPermission, showBrowserNotification } from './utils/notifications';
 
 const FILTROS = [
   { value: 'todos',      label: 'Todos' },
@@ -186,12 +187,53 @@ function AppInner() {
   const [error, setError] = useState(null);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
   const [busqueda, setBusqueda] = useState('');
+  const [toasts, setToasts] = useState([]);           // notificaciones in-app
+  const [sonidoActivo, setSonidoActivo] = useState(   // preferencia guardada
+    () => localStorage.getItem('pedidos_sonido') !== 'off'
+  );
+
+  // IDs conocidos — null = primera carga (no notificar)
+  const knownIds = useRef(null);
+
+  // Solicitar permiso de notificaciones del navegador al montar
+  useEffect(() => { requestNotificationPermission(); }, []);
+
+  const addToast = useCallback((pedidosNuevos) => {
+    const id = Date.now();
+    const msg = pedidosNuevos.length === 1
+      ? `Nuevo pedido de ${pedidosNuevos[0].cliente}`
+      : `${pedidosNuevos.length} nuevos pedidos`;
+    setToasts(prev => [...prev, { id, msg }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000);
+  }, []);
+
+  const toggleSonido = useCallback(() => {
+    setSonidoActivo(prev => {
+      const next = !prev;
+      localStorage.setItem('pedidos_sonido', next ? 'on' : 'off');
+      return next;
+    });
+  }, []);
 
   const cargar = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await getPedidos();
+
+      if (knownIds.current === null) {
+        // Primera carga: registrar IDs existentes sin notificar
+        knownIds.current = new Set(data.map(p => p.id));
+      } else {
+        const nuevos = data.filter(p => !knownIds.current.has(p.id));
+        knownIds.current = new Set(data.map(p => p.id));
+        if (nuevos.length > 0) {
+          if (sonidoActivo) playNotificationSound();
+          showBrowserNotification(nuevos);
+          addToast(nuevos);
+        }
+      }
+
       setPedidos(data);
       setUltimaActualizacion(new Date());
     } catch {
@@ -199,7 +241,7 @@ function AppInner() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sonidoActivo, addToast]);
 
   useEffect(() => { cargar(); }, [cargar]);
   useEffect(() => {
@@ -266,7 +308,26 @@ function AppInner() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
-      <Header ultimaActualizacion={ultimaActualizacion} onRefresh={cargar} loading={loading} />
+      <Header
+        ultimaActualizacion={ultimaActualizacion}
+        onRefresh={cargar}
+        loading={loading}
+        sonidoActivo={sonidoActivo}
+        onToggleSonido={toggleSonido}
+      />
+
+      {/* Toasts de nuevos pedidos */}
+      <div className="fixed top-20 right-4 z-50 space-y-2 pointer-events-none">
+        {toasts.map(t => (
+          <div
+            key={t.id}
+            className="flex items-center gap-2.5 bg-gray-900 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-xl animate-slide-in"
+          >
+            <span className="text-lg">🛎️</span>
+            {t.msg}
+          </div>
+        ))}
+      </div>
 
       {/* Tabs desktop */}
       <div className="hidden md:block bg-white border-b border-gray-200 sticky top-[61px] z-20">

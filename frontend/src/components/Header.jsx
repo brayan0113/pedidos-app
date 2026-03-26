@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 
-export default function Header({ ultimaActualizacion, onRefresh, loading }) {
+export default function Header({ ultimaActualizacion, onRefresh, loading, sonidoActivo, onToggleSonido }) {
   const { user, logout, isAdmin } = useAuth();
 
   const hora = ultimaActualizacion
@@ -25,6 +25,30 @@ export default function Header({ ultimaActualizacion, onRefresh, loading }) {
 
         {/* Acciones */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Botón sonido */}
+          {onToggleSonido && (
+            <button
+              onClick={onToggleSonido}
+              title={sonidoActivo ? 'Silenciar notificaciones' : 'Activar notificaciones'}
+              className={`p-1.5 rounded-lg transition-colors ${
+                sonidoActivo
+                  ? 'text-green-600 bg-green-50 hover:bg-green-100'
+                  : 'text-gray-400 bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {sonidoActivo ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 6v12m0 0l-3-3m3 3l3-3M9 9H5l-2 2v2l2 2h4l5 5V4L9 9z"/>
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+                </svg>
+              )}
+            </button>
+          )}
+
           {/* Botón actualizar */}
           <button
             onClick={onRefresh}
