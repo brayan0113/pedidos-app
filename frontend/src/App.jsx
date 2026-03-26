@@ -170,6 +170,53 @@ const IconMenu = () => (
   </svg>
 );
 
+// ─── Banner de instalación PWA ────────────────────────────────────────────────
+function InstallBanner() {
+  const [prompt, setPrompt] = useState(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setPrompt(e); setVisible(true); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const instalar = async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    if (outcome === 'accepted') setVisible(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-40">
+      <div className="bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+        <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold">Instalar Pedify</p>
+          <p className="text-xs text-gray-400">Accede rápido desde tu pantalla de inicio</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <button onClick={() => setVisible(false)} className="text-gray-500 hover:text-gray-300 p-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+          <button onClick={instalar} className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+            Instalar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const { user } = useAuth();
@@ -522,6 +569,9 @@ function AppInner() {
           onUpdate={() => { cargar(); setSelectedPedido(null); }}
         />
       )}
+
+      {/* Banner instalación PWA */}
+      <InstallBanner />
     </div>
   );
 }
