@@ -86,7 +86,11 @@ function HistorialPorDia({ pedidos, onSelectPedido }) {
   if (grupos.length === 0) {
     return (
       <div className="text-center py-16">
-        <p className="text-5xl mb-3">📭</p>
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
         <p className="text-gray-500 font-medium">No hay pedidos en el historial</p>
       </div>
     );
@@ -370,7 +374,9 @@ function AppInner() {
             key={t.id}
             className="flex items-center gap-2.5 bg-gray-900 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-xl animate-slide-in"
           >
-            <span className="text-lg">🛎️</span>
+            <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
             {t.msg}
           </div>
         ))}
@@ -404,26 +410,41 @@ function AppInner() {
       </div>
 
       {/* Navegación inferior móvil */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 flex">
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => cambiarTab(t.key)}
-            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 px-1 transition-colors ${
-              tab === t.key ? 'text-amber-600' : 'text-gray-400'
-            }`}
-          >
-            <div className="relative">
-              {t.icon}
-              {t.key === 'hoy' && stats.nuevo > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                  {stats.nuevo > 9 ? '9+' : stats.nuevo}
-                </span>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-30 flex items-center justify-around px-2 py-2 safe-area-pb">
+        {tabs.map(t => {
+          const isActive = tab === t.key;
+          const label = t.label === 'Nuevo pedido' ? 'Nuevo' : t.label;
+          return (
+            <button
+              key={t.key}
+              onClick={() => cambiarTab(t.key)}
+              className="flex-1 flex items-center justify-center py-1"
+            >
+              {isActive ? (
+                <div className="flex items-center gap-1.5 bg-amber-500 text-white px-4 py-2 rounded-full shadow-md shadow-amber-200 transition-all">
+                  <div className="relative shrink-0">
+                    {t.icon}
+                    {t.key === 'hoy' && stats.nuevo > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-white text-amber-600 text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                        {stats.nuevo > 9 ? '9+' : stats.nuevo}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold leading-none whitespace-nowrap">{label}</span>
+                </div>
+              ) : (
+                <div className="relative flex items-center justify-center w-11 h-11 bg-gray-100 text-gray-500 rounded-full transition-all active:scale-95">
+                  {t.icon}
+                  {t.key === 'hoy' && stats.nuevo > 0 && (
+                    <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                      {stats.nuevo > 9 ? '9+' : stats.nuevo}
+                    </span>
+                  )}
+                </div>
               )}
-            </div>
-            <span className="text-[10px] font-medium leading-none">{t.label === 'Nuevo pedido' ? 'Nuevo' : t.label}</span>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Contenido */}
@@ -504,7 +525,11 @@ function AppInner() {
                 </p>
                 {pedidosFiltrados.length === 0 && !loading ? (
                   <div className="text-center py-16">
-                    <p className="text-5xl mb-3">📭</p>
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                      </svg>
+                    </div>
                     <p className="text-gray-500 font-medium">No hay pedidos hoy</p>
                     <p className="text-sm text-gray-400 mt-1">
                       {busqueda ? 'Intenta otra búsqueda' : 'Los pedidos aparecerán aquí'}
