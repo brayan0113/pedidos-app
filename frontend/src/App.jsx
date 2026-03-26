@@ -11,22 +11,22 @@ import Login from './components/Login';
 import { playNotificationSound, requestNotificationPermission, showBrowserNotification } from './utils/notifications';
 
 const FILTROS = [
-  { value: 'todos',      label: 'Todos' },
-  { value: 'nuevo',      label: 'Nuevos' },
+  { value: 'todos', label: 'Todos' },
+  { value: 'nuevo', label: 'Nuevos' },
   { value: 'en_proceso', label: 'En proceso' },
-  { value: 'listo',      label: 'Listos' },
-  { value: 'entregado',  label: 'Entregados' },
-  { value: 'cancelado',  label: 'Cancelados' },
+  { value: 'listo', label: 'Listos' },
+  { value: 'entregado', label: 'Entregados' },
+  { value: 'cancelado', label: 'Cancelados' },
 ];
 
 function computeStats(lista) {
   return {
-    total:      lista.length,
-    nuevo:      lista.filter(p => p.estado === 'nuevo').length,
+    total: lista.length,
+    nuevo: lista.filter(p => p.estado === 'nuevo').length,
     en_proceso: lista.filter(p => p.estado === 'en_proceso').length,
-    listo:      lista.filter(p => p.estado === 'listo').length,
-    entregado:  lista.filter(p => p.estado === 'entregado').length,
-    cancelado:  lista.filter(p => p.estado === 'cancelado').length,
+    listo: lista.filter(p => p.estado === 'listo').length,
+    entregado: lista.filter(p => p.estado === 'entregado').length,
+    cancelado: lista.filter(p => p.estado === 'cancelado').length,
     ingresos_hoy: lista
       .filter(p => p.estado !== 'cancelado')
       .reduce((s, p) => s + (p.total || 0), 0),
@@ -88,7 +88,7 @@ function HistorialPorDia({ pedidos, onSelectPedido }) {
       <div className="text-center py-16">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
           <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
         </div>
         <p className="text-gray-500 font-medium">No hay pedidos en el historial</p>
@@ -132,7 +132,7 @@ function HistorialPorDia({ pedidos, onSelectPedido }) {
                   className={`w-4 h-4 text-gray-400 transition-transform ${abierto ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
             </button>
@@ -155,22 +155,22 @@ function HistorialPorDia({ pedidos, onSelectPedido }) {
 // ─── Íconos ───────────────────────────────────────────────────────────────────
 const IconPedidos = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
   </svg>
 );
 const IconHistorial = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
 const IconNuevo = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
   </svg>
 );
 const IconMenu = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
   </svg>
 );
 
@@ -199,7 +199,7 @@ function InstallBanner() {
       <div className="bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center gap-3">
         <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
         </div>
         <div className="flex-1 min-w-0">
@@ -209,7 +209,7 @@ function InstallBanner() {
         <div className="flex gap-2 shrink-0">
           <button onClick={() => setVisible(false)} className="text-gray-500 hover:text-gray-300 p-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           <button onClick={instalar} className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
@@ -351,10 +351,10 @@ function AppInner() {
   const stats = useMemo(() => computeStats(pedidosHoy), [pedidosHoy]);
 
   const tabs = [
-    { key: 'hoy',      label: 'Hoy',      icon: <IconPedidos /> },
+    { key: 'hoy', label: 'Hoy', icon: <IconPedidos /> },
     ...(isAdmin ? [{ key: 'historial', label: 'Historial', icon: <IconHistorial /> }] : []),
-    { key: 'nuevo',    label: 'Nuevo pedido', icon: <IconNuevo /> },
-    ...(isAdmin ? [{ key: 'menu',      label: 'Menú',      icon: <IconMenu /> }] : []),
+    { key: 'nuevo', label: 'Nuevo pedido', icon: <IconNuevo /> },
+    ...(isAdmin ? [{ key: 'menu', label: 'Menú', icon: <IconMenu /> }] : []),
   ];
 
   return (
@@ -375,7 +375,7 @@ function AppInner() {
             className="flex items-center gap-2.5 bg-gray-900 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-xl animate-slide-in"
           >
             <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             {t.msg}
           </div>
@@ -390,11 +390,10 @@ function AppInner() {
               <button
                 key={t.key}
                 onClick={() => cambiarTab(t.key)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  tab === t.key
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${tab === t.key
                     ? 'border-amber-500 text-amber-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 {t.icon}
                 {t.label}
@@ -410,7 +409,7 @@ function AppInner() {
       </div>
 
       {/* Navegación inferior móvil */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30 flex items-center justify-around px-3 py-2.5">
+      <nav className="md:hidden fixed bottom-[20px] left-0 right-0 mx-auto w-[92%] bg-white/80 backdrop-blur-md border border-gray-200 z-30 flex items-center justify-between  px-3 py-2.5 rounded-[2em] shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
         {tabs.map(t => {
           const isActive = tab === t.key;
           const label = t.label === 'Nuevo pedido' ? 'Nuevo' : t.label;
@@ -431,11 +430,11 @@ function AppInner() {
                       </span>
                     )}
                   </div>
-                  <span className="text-sm font-semibold text-gray-800 pr-1 whitespace-nowrap">{label}</span>
+                  <span className="text-sm font-semibold text-gray-900 pr-1 whitespace-nowrap">{label}</span>
                 </div>
               ) : (
                 /* Tab inactivo: círculo con borde */
-                <div className="relative w-11 h-11 border-2 border-gray-200 text-gray-500 rounded-full flex items-center justify-center">
+                <div className="relative w-11 h-11 border-2 border-gray-300 text-gray-800 rounded-full flex items-center justify-center">
                   {t.icon}
                   {t.key === 'hoy' && stats.nuevo > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
@@ -469,7 +468,7 @@ function AppInner() {
             {/* Búsqueda */}
             <div className="relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
@@ -481,14 +480,14 @@ function AppInner() {
               {busqueda && (
                 <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}
             </div>
 
             {/* Filtros */}
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide flex-wrap">
               {FILTROS.map(f => (
                 <button
                   key={f.value}
@@ -513,7 +512,7 @@ function AppInner() {
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-sm text-red-700">{error}</p>
               </div>
@@ -529,7 +528,7 @@ function AppInner() {
                   <div className="text-center py-16">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                     </div>
                     <p className="text-gray-500 font-medium">No hay pedidos hoy</p>
@@ -562,7 +561,7 @@ function AppInner() {
             {/* Búsqueda historial */}
             <div className="relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
@@ -574,7 +573,7 @@ function AppInner() {
               {busqueda && (
                 <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}
