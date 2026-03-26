@@ -184,6 +184,47 @@ app.post('/webhook/verificar-disponibilidad', (req, res) => {
   res.json(resultado);
 });
 
+// ─── USUARIOS (solo admin) ────────────────────────────────────────────────────
+app.get('/api/usuarios', requireAuth, requireAdmin, (req, res) => {
+  res.json(db.getUsuarios());
+});
+
+app.post('/api/usuarios', requireAuth, requireAdmin, (req, res) => {
+  const { nombre, username, password, rol } = req.body;
+  if (!nombre || !username || !password) {
+    return res.status(400).json({ error: 'nombre, username y password son requeridos' });
+  }
+  if (!['admin', 'mesero'].includes(rol)) {
+    return res.status(400).json({ error: 'rol debe ser "admin" o "mesero"' });
+  }
+  if (db.getUserByUsername(username)) {
+    return res.status(409).json({ error: 'El username ya está en uso' });
+  }
+  const id = `usr-${uuidv4()}`;
+  db.createUsuario({ id, nombre, username, password, rol });
+  console.log(`[${new Date().toLocaleString()}] 👤 Usuario creado: ${nombre} (${rol})`);
+  res.status(201).json({ success: true, id });
+});
+
+app.patch('/api/usuarios/:id/password', requireAuth, requireAdmin, (req, res) => {
+  const { password } = req.body;
+  if (!password || password.length < 4) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
+  }
+  const ok = db.updateUsuarioPassword(req.params.id, password);
+  if (!ok) return res.status(404).json({ error: 'Usuario no encontrado' });
+  res.json({ success: true });
+});
+
+app.delete('/api/usuarios/:id', requireAuth, requireAdmin, (req, res) => {
+  if (req.params.id === req.user.id) {
+    return res.status(400).json({ error: 'No puedes eliminar tu propio usuario' });
+  }
+  const ok = db.deleteUsuario(req.params.id);
+  if (!ok) return res.status(404).json({ error: 'Usuario no encontrado' });
+  res.json({ success: true });
+});
+
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

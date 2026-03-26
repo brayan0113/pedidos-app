@@ -173,8 +173,24 @@ const getUserByUsername = (username) =>
 const getUsuarios = () =>
   sqlite.prepare('SELECT id, nombre, username, rol FROM usuarios ORDER BY rol, nombre').all();
 
+const createUsuario = ({ id, nombre, username, password, rol }) => {
+  sqlite.prepare('INSERT INTO usuarios (id, nombre, username, password, rol) VALUES (?, ?, ?, ?, ?)')
+    .run(id, nombre, username, bcrypt.hashSync(password, 10), rol);
+};
+
+const deleteUsuario = (id) => {
+  const result = sqlite.prepare('DELETE FROM usuarios WHERE id = ?').run(id);
+  return result.changes > 0;
+};
+
+const updateUsuarioPassword = (id, newPassword) => {
+  const result = sqlite.prepare('UPDATE usuarios SET password = ? WHERE id = ?')
+    .run(bcrypt.hashSync(newPassword, 10), id);
+  return result.changes > 0;
+};
+
 module.exports = {
   getPedidos, getPedido, insertPedido, updateEstado, deletePedido, getStats,
   getItems, getItemsDisponibles, getItem, insertItem, updateItem, deleteItem, verificarDisponibilidad,
-  getUserByUsername, getUsuarios
+  getUserByUsername, getUsuarios, createUsuario, deleteUsuario, updateUsuarioPassword
 };
