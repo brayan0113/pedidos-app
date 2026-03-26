@@ -225,6 +225,22 @@ app.delete('/api/usuarios/:id', requireAuth, requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// ─── ADMIN: OPERACIONES TEMPORALES ───────────────────────────────────────────
+// ⚠️  Endpoint temporal para limpiar todos los pedidos.
+//     Protegido con JWT de admin + clave secreta adicional.
+//     Eliminar este bloque una vez ejecutada la limpieza.
+const ADMIN_CLEAR_SECRET = process.env.ADMIN_CLEAR_SECRET || 'borrar-pedidos-2024';
+
+app.delete('/api/admin/clear-pedidos', requireAuth, requireAdmin, (req, res) => {
+  const { secret } = req.body;
+  if (secret !== ADMIN_CLEAR_SECRET) {
+    return res.status(403).json({ error: 'Clave secreta incorrecta' });
+  }
+  const deleted = db.clearPedidos();
+  console.log(`[${new Date().toLocaleString()}] 🗑️  ADMIN: ${deleted} pedido(s) eliminados por ${req.user.nombre}`);
+  res.json({ success: true, deleted });
+});
+
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
