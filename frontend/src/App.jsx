@@ -410,7 +410,7 @@ function AppInner() {
       </div>
 
       {/* Navegación inferior móvil */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-30 flex items-center justify-around px-2 py-2 safe-area-pb">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30 flex items-center justify-around px-3 py-2.5">
         {tabs.map(t => {
           const isActive = tab === t.key;
           const label = t.label === 'Nuevo pedido' ? 'Nuevo' : t.label;
@@ -418,25 +418,27 @@ function AppInner() {
             <button
               key={t.key}
               onClick={() => cambiarTab(t.key)}
-              className="flex-1 flex items-center justify-center py-1"
+              className="flex items-center justify-center active:scale-95 transition-transform"
             >
               {isActive ? (
-                <div className="flex items-center gap-1.5 bg-amber-500 text-white px-4 py-2 rounded-full shadow-md shadow-amber-200 transition-all">
-                  <div className="relative shrink-0">
+                /* Píldora activa: fondo crema + círculo amber con icono + texto */
+                <div className="flex items-center gap-2 bg-amber-50 px-3 py-2 rounded-full">
+                  <div className="relative w-9 h-9 bg-amber-500 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm">
                     {t.icon}
                     {t.key === 'hoy' && stats.nuevo > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-white text-amber-600 text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-white text-amber-600 text-[10px] font-bold rounded-full flex items-center justify-center border border-amber-200 leading-none">
                         {stats.nuevo > 9 ? '9+' : stats.nuevo}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-semibold leading-none whitespace-nowrap">{label}</span>
+                  <span className="text-sm font-semibold text-gray-800 pr-1 whitespace-nowrap">{label}</span>
                 </div>
               ) : (
-                <div className="relative flex items-center justify-center w-11 h-11 bg-gray-100 text-gray-500 rounded-full transition-all active:scale-95">
+                /* Tab inactivo: círculo con borde */
+                <div className="relative w-11 h-11 border-2 border-gray-200 text-gray-500 rounded-full flex items-center justify-center">
                   {t.icon}
                   {t.key === 'hoy' && stats.nuevo > 0 && (
-                    <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
                       {stats.nuevo > 9 ? '9+' : stats.nuevo}
                     </span>
                   )}
