@@ -22,7 +22,7 @@ export function playNotificationSound() {
     tone(830, t,        0.25);
     tone(1046, t + 0.2, 0.35);
   } catch (e) {
-    console.warn('[PedidosApp] No se pudo reproducir sonido:', e);
+    console.warn('[Pedify] No se pudo reproducir sonido:', e);
   }
 }
 
@@ -51,6 +51,6 @@ export function showBrowserNotification(pedidos) {
     const notif = new Notification(title, { body, icon: '/favicon.ico', tag: 'nuevo-pedido' });
     setTimeout(() => notif.close(), 6000);
   } catch (e) {
-    console.warn('[PedidosApp] No se pudo mostrar notificación:', e);
+    console.warn('[Pedify] No se pudo mostrar notificación:', e);
   }
 }

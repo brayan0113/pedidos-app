@@ -109,7 +109,7 @@ function HistorialPorDia({ pedidos, onSelectPedido }) {
               className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-2 h-2 rounded-full shrink-0 ${abierto ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <div className={`w-2 h-2 rounded-full shrink-0 ${abierto ? 'bg-amber-500' : 'bg-gray-300'}`} />
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900 capitalize">{titulo}</p>
                   <p className="text-xs text-gray-400 mt-0.5">
@@ -123,7 +123,7 @@ function HistorialPorDia({ pedidos, onSelectPedido }) {
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="font-bold text-green-600 text-sm">{fmtCOP(totalDia)}</span>
+                <span className="font-bold text-amber-600 text-sm">{fmtCOP(totalDia)}</span>
                 <svg
                   className={`w-4 h-4 text-gray-400 transition-transform ${abierto ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -339,14 +339,14 @@ function AppInner() {
                 onClick={() => cambiarTab(t.key)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   tab === t.key
-                    ? 'border-green-500 text-green-600'
+                    ? 'border-amber-500 text-amber-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 {t.icon}
                 {t.label}
                 {t.key === 'hoy' && stats.nuevo > 0 && (
-                  <span className="bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
+                  <span className="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
                     {stats.nuevo}
                   </span>
                 )}
@@ -363,13 +363,13 @@ function AppInner() {
             key={t.key}
             onClick={() => cambiarTab(t.key)}
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 px-1 transition-colors ${
-              tab === t.key ? 'text-green-600' : 'text-gray-400'
+              tab === t.key ? 'text-amber-600' : 'text-gray-400'
             }`}
           >
             <div className="relative">
               {t.icon}
               {t.key === 'hoy' && stats.nuevo > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
                   {stats.nuevo > 9 ? '9+' : stats.nuevo}
                 </span>
               )}
@@ -406,7 +406,7 @@ function AppInner() {
                 placeholder="Buscar por cliente, teléfono, producto o mesero..."
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
-                className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
               {busqueda && (
                 <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -425,14 +425,14 @@ function AppInner() {
                   onClick={() => { setFiltro(f.value); setBusqueda(''); }}
                   className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors
                     ${filtro === f.value
-                      ? 'bg-green-500 text-white shadow-sm'
+                      ? 'bg-amber-500 text-white shadow-sm'
                       : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                     }`}
                 >
                   {f.label}
                   {f.value !== 'todos' && stats[f.value] > 0 && (
                     <span className={`ml-1.5 text-xs font-semibold px-1.5 py-0.5 rounded-full
-                      ${filtro === f.value ? 'bg-white/30 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                      ${filtro === f.value ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
                       {stats[f.value]}
                     </span>
                   )}
@@ -495,7 +495,7 @@ function AppInner() {
                 placeholder="Buscar en el historial..."
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
-                className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full pl-9 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
               {busqueda && (
                 <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">

@@ -82,7 +82,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Seleccionar productos</h2>
           {totalItems > 0 && (
-            <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {totalItems} en carrito
             </span>
           )}
@@ -98,7 +98,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
             placeholder="Buscar producto..."
             value={busquedaMenu}
             onChange={e => setBusquedaMenu(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
           />
         </div>
 
@@ -116,7 +116,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">{item.nombre}</p>
                       {item.descripcion && <p className="text-xs text-gray-400 truncate">{item.descripcion}</p>}
-                      <p className="text-sm font-semibold text-green-600 mt-0.5">${item.precio.toLocaleString('es-CO')}</p>
+                      <p className="text-sm font-semibold text-amber-600 mt-0.5">${item.precio.toLocaleString('es-CO')}</p>
                     </div>
                     {enCarrito ? (
                       <div className="flex items-center gap-2 shrink-0">
@@ -127,13 +127,13 @@ export default function NuevoPedido({ onPedidoCreado }) {
                         <span className="w-6 text-center text-sm font-semibold">{enCarrito.cantidad}</span>
                         <button
                           onClick={() => cambiarCantidad(item.id, 1)}
-                          className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center text-white font-bold text-lg leading-none"
+                          className="w-8 h-8 rounded-full bg-amber-500 hover:bg-amber-600 flex items-center justify-center text-white font-bold text-lg leading-none"
                         >+</button>
                       </div>
                     ) : (
                       <button
                         onClick={() => agregarItem(item)}
-                        className="shrink-0 bg-green-500 hover:bg-green-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+                        className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
                       >
                         Agregar
                       </button>
@@ -169,7 +169,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
                 value={cliente}
                 onChange={e => setCliente(e.target.value)}
                 placeholder="Ej: María García"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
             <div>
@@ -179,7 +179,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
                 onChange={e => setTelefono(e.target.value)}
                 placeholder="Ej: 3001234567"
                 type="tel"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
             <div>
@@ -188,7 +188,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
                 value={direccion}
                 onChange={e => setDireccion(e.target.value)}
                 placeholder="Ej: Calle 10 #5-20"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
             <div>
@@ -198,7 +198,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
                 onChange={e => setNotas(e.target.value)}
                 placeholder="Ej: Sin cebolla, extra salsa..."
                 rows={2}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
                 ))}
                 <div className="border-t border-gray-100 pt-2 flex justify-between font-semibold text-gray-900">
                   <span>Total</span>
-                  <span className="text-green-600">${total.toLocaleString('es-CO')}</span>
+                  <span className="text-amber-600">${total.toLocaleString('es-CO')}</span>
                 </div>
               </div>
             )}
@@ -238,7 +238,7 @@ export default function NuevoPedido({ onPedidoCreado }) {
           <button
             type="submit"
             disabled={guardando}
-            className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
+            className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
           >
             {guardando ? 'Guardando...' : 'Crear pedido'}
           </button>

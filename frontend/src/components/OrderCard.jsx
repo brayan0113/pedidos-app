@@ -27,7 +27,7 @@ export default function OrderCard({ pedido, onClick }) {
   return (
     <div
       onClick={() => onClick(pedido)}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-green-200 transition-all active:scale-[0.98]"
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-amber-200 transition-all active:scale-[0.98]"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0">
@@ -69,7 +69,7 @@ export default function OrderCard({ pedido, onClick }) {
           )}
         </div>
         {pedido.total > 0 && (
-          <span className="font-bold text-green-600 text-sm shrink-0">{fmtCOP(pedido.total)}</span>
+          <span className="font-bold text-amber-600 text-sm shrink-0">{fmtCOP(pedido.total)}</span>
         )}
       </div>
     </div>

@@ -74,8 +74,8 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
         <div className="overflow-y-auto flex-1 px-5 py-4 space-y-5">
           {/* Info cliente */}
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-              <span className="text-lg font-bold text-green-600">{pedido.cliente[0]?.toUpperCase()}</span>
+            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+              <span className="text-lg font-bold text-amber-600">{pedido.cliente[0]?.toUpperCase()}</span>
             </div>
             <div>
               <p className="font-semibold text-gray-900">{pedido.cliente}</p>
@@ -122,7 +122,7 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
                 {pedido.productos.map((p, i) => (
                   <div key={i} className="flex justify-between items-center px-3 py-2.5">
                     <span className="text-sm text-gray-800">
-                      {p.cantidad && <span className="font-semibold text-green-600 mr-1">{p.cantidad}x</span>}
+                      {p.cantidad && <span className="font-semibold text-amber-600 mr-1">{p.cantidad}x</span>}
                       {p.nombre}
                     </span>
                     {p.precio > 0 && <span className="text-sm font-medium text-gray-700">{fmtCOP(p.precio * (p.cantidad || 1))}</span>}
@@ -132,7 +132,7 @@ export default function OrderDetail({ pedido, onClose, onUpdate }) {
               {pedido.total > 0 && (
                 <div className="flex justify-between items-center mt-2 px-3">
                   <span className="text-sm font-semibold text-gray-700">Total</span>
-                  <span className="text-base font-bold text-green-600">{fmtCOP(pedido.total)}</span>
+                  <span className="text-base font-bold text-amber-600">{fmtCOP(pedido.total)}</span>
                 </div>
               )}
             </div>

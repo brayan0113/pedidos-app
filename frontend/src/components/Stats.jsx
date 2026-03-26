@@ -25,11 +25,11 @@ export default function Stats({ stats, esHistorial = false }) {
       <StatCard label="En proceso" value={stats.en_proceso} color="border-yellow-400" icon="⏳" />
       <StatCard label="Listos" value={stats.listo} color="border-green-400" icon="✅" />
       <StatCard label="Entregados" value={stats.entregado} color="border-purple-400" icon="🚚" />
-      <div className="bg-white rounded-xl border-l-4 border-green-500 p-3 sm:p-4 shadow-sm col-span-2 sm:col-span-3 lg:col-span-1">
+      <div className="bg-white rounded-xl border-l-4 border-amber-500 p-3 sm:p-4 shadow-sm col-span-2 sm:col-span-3 lg:col-span-1">
         <p className="text-xs text-gray-500 font-medium uppercase tracking-wide leading-tight">
           {esHistorial ? 'Ingresos total' : 'Ingresos hoy'}
         </p>
-        <p className="text-base sm:text-lg font-bold text-green-600 mt-0.5">{fmtCOP(stats.ingresos_hoy)}</p>
+        <p className="text-base sm:text-lg font-bold text-amber-600 mt-0.5">{fmtCOP(stats.ingresos_hoy)}</p>
       </div>
     </div>
   );
