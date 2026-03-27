@@ -126,6 +126,10 @@ app.get('/api/stats', requireAuth, (req, res) => {
   res.json(db.getStats());
 });
 
+// Primera letra de cada palabra en mayúscula
+const toTitleCase = (str) =>
+  str.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
 // ─── MENÚ (solo admin puede modificar) ────────────────────────────────────────
 app.get('/api/menu', requireAuth, (req, res) => {
   res.json(db.getItems());
@@ -137,9 +141,9 @@ app.post('/api/menu', requireAuth, requireAdmin, (req, res) => {
 
   const item = {
     id: uuidv4(),
-    nombre,
-    descripcion: descripcion || '',
-    categoria: categoria || 'General',
+    nombre: toTitleCase(nombre),
+    descripcion: descripcion ? descripcion.trim() : '',
+    categoria: toTitleCase(categoria || 'General'),
     precio: Number(precio) || 0,
     disponible: true
   };
@@ -155,6 +159,8 @@ app.patch('/api/menu/:id', requireAuth, requireAdmin, (req, res) => {
     if (req.body[k] !== undefined) campos[k] = req.body[k];
   }
   if (campos.precio !== undefined) campos.precio = Number(campos.precio);
+  if (campos.nombre !== undefined) campos.nombre = toTitleCase(campos.nombre);
+  if (campos.categoria !== undefined) campos.categoria = toTitleCase(campos.categoria);
 
   const ok = db.updateItem(req.params.id, campos);
   if (!ok) return res.status(404).json({ error: 'Ítem no encontrado' });
@@ -230,6 +236,20 @@ app.delete('/api/usuarios/:id', requireAuth, requireAdmin, (req, res) => {
   const ok = db.deleteUsuario(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Usuario no encontrado' });
   res.json({ success: true });
+});
+
+// Normalizar nombres existentes en el menú (one-time, admin)
+app.post('/api/menu/normalizar', requireAuth, requireAdmin, (req, res) => {
+  const items = db.getItems();
+  let count = 0;
+  for (const item of items) {
+    db.updateItem(item.id, {
+      nombre: toTitleCase(item.nombre),
+      categoria: toTitleCase(item.categoria),
+    });
+    count++;
+  }
+  res.json({ success: true, normalizados: count });
 });
 
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
