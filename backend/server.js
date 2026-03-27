@@ -115,6 +115,13 @@ app.delete('/api/pedidos/:id', requireAuth, requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// Solo admin — vaciar TODOS los pedidos (para reset de producción)
+app.delete('/api/pedidos', requireAuth, requireAdmin, (req, res) => {
+  const count = db.deleteAllPedidos();
+  console.log(`[${new Date().toLocaleString()}] 🗑️ Reset: ${count} pedidos eliminados por ${req.user.nombre}`);
+  res.json({ success: true, eliminados: count });
+});
+
 app.get('/api/stats', requireAuth, (req, res) => {
   res.json(db.getStats());
 });

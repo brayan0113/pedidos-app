@@ -91,6 +91,11 @@ const deletePedido = (id) => {
   return result.changes > 0;
 };
 
+const deleteAllPedidos = () => {
+  const result = sqlite.prepare('DELETE FROM pedidos').run();
+  return result.changes;
+};
+
 const getStats = () => {
   const hoy = new Date().toISOString().slice(0, 10);
   const all = sqlite.prepare('SELECT estado, total, fecha FROM pedidos').all();
@@ -190,7 +195,7 @@ const updateUsuarioPassword = (id, newPassword) => {
 };
 
 module.exports = {
-  getPedidos, getPedido, insertPedido, updateEstado, deletePedido, getStats,
+  getPedidos, getPedido, insertPedido, updateEstado, deletePedido, deleteAllPedidos, getStats,
   getItems, getItemsDisponibles, getItem, insertItem, updateItem, deleteItem, verificarDisponibilidad,
   getUserByUsername, getUsuarios, createUsuario, deleteUsuario, updateUsuarioPassword
 };
